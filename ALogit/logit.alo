@@ -1,0 +1,52 @@
+- Define data input
+
+file (name=swissmetro1.txt) id choice purp first ticket who lug age male inc ga 
+org dest av_tr av_car av_SM tr_tt tr_cost tr_he SM_tt SM_cost SM_he SM_seats
+car_tt car_cost
+
+$GEN.STATS av_tr av_car av_SM
+
+$TITLE Swiss Metro- Function 01
+- Standard logit
+----------------------------------
+
+--- controls ---
+
+
+--- coefficients ---
+
+$ESTIMATE
+
+   11 time   F  0.0
+   12 cost  F  0.0
+   01 c_train  F  0.0
+   02 c_SM T  0.0
+   03 c_car  F  0.0
+
+--- transformations ---
+
+tr_tt_sc = tr_tt/100
+tr_cost_sc = tr_cost/100*ifeq(ga,0)
+SM_tt_sc =SM_tt/100
+SM_cost_sc = SM_cost/100*ifeq(ga,0)
+c_tt_sc = car_tt/100
+c_cost_sc = car_cost/100
+
+--- exclusions ---
+
+$NEST root() train car SM
+CHOICE = Recode(choice train, SM, car)
+
+AVAIL(train) = IF(av_tr)
+AVAIL(SM) = IF(av_SM)
+AVAIL(car) = IF(av_car)
+
+--- utility functions ---
+
+U(train) = p11*tr_tt_sc  + p12*tr_cost_sc + p01
+
+U(SM) = p11*SM_tt_sc  + p12*SM_cost_sc + p02
+
+U(car) = p11*c_tt_sc  + p12*c_cost_sc + p03
+
+
